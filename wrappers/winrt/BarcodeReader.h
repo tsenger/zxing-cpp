@@ -23,6 +23,7 @@ public enum class BarcodeType : int {
 	EAN_8,
 	EAN_13,
 	ITF,
+	JAB_CODE,
 	MAXICODE,
 	PDF_417,
 	QR_CODE,

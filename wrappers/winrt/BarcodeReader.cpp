@@ -84,6 +84,8 @@ BarcodeFormat BarcodeReader::ConvertRuntimeToNative(BarcodeType type)
 		return BarcodeFormat::EAN8;
 	case BarcodeType::ITF:
 		return BarcodeFormat::ITF;
+	case BarcodeType::JAB_CODE:
+		return BarcodeFormat::JABCode;
 	case BarcodeType::MAXICODE:
 		return BarcodeFormat::MaxiCode;
 	case BarcodeType::PDF_417:
@@ -133,6 +135,8 @@ BarcodeType BarcodeReader::ConvertNativeToRuntime(BarcodeFormat format)
 		return BarcodeType::EAN_8;
 	case BarcodeFormat::ITF:
 		return BarcodeType::ITF;
+	case BarcodeFormat::JABCode:
+		return BarcodeType::JAB_CODE;
 	case BarcodeFormat::MaxiCode:
 		return BarcodeType::MAXICODE;
 	case BarcodeFormat::PDF417:

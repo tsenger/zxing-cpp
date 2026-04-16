@@ -52,6 +52,8 @@ ZXing::BarcodeFormat BarcodeFormatFromZXIFormat(ZXIFormat format) {
             return ZXing::BarcodeFormat::MicroQRCode;
         case ZXIFormat::RMQR_CODE:
             return ZXing::BarcodeFormat::RMQRCode;
+        case ZXIFormat::JAB_CODE:
+            return ZXing::BarcodeFormat::JABCode;
         case ZXIFormat::NONE:
             return ZXing::BarcodeFormat::None;
     }
@@ -89,6 +91,8 @@ ZXIFormat ZXIFormatFromBarcodeFormat(ZXing::BarcodeFormat format) {
             return ZXIFormat::EAN_13;
         case ZXing::BarcodeFormat::ITF:
             return ZXIFormat::ITF;
+        case ZXing::BarcodeFormat::JABCode:
+            return ZXIFormat::JAB_CODE;
         case ZXing::BarcodeFormat::MaxiCode:
             return ZXIFormat::MAXICODE;
         case ZXing::BarcodeFormat::PDF417:

@@ -231,6 +231,7 @@ public readonly struct BarcodeFormat : IEquatable<BarcodeFormat>
 	public static readonly BarcodeFormat MicroQRCode     = new BarcodeFormat(0x6D51);
 	public static readonly BarcodeFormat RMQRCode        = new BarcodeFormat(0x7251);
 	public static readonly BarcodeFormat DataMatrix      = new BarcodeFormat(0x2064);
+	public static readonly BarcodeFormat JABCode         = new BarcodeFormat(0x204A);
 	public static readonly BarcodeFormat MaxiCode        = new BarcodeFormat(0x2055);
 
 	public static implicit operator int(BarcodeFormat f) => f._value;

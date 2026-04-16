@@ -38,6 +38,7 @@ static const char* JavaBarcodeFormatName(BarcodeFormat format)
 	case BarcodeFormat::EAN8: return "EAN_8";
 	case BarcodeFormat::EAN13: return "EAN_13";
 	case BarcodeFormat::ITF: return "ITF";
+	case BarcodeFormat::JABCode: return "JAB_CODE";
 	case BarcodeFormat::MaxiCode: return "MAXICODE";
 	case BarcodeFormat::PDF417: return "PDF_417";
 	case BarcodeFormat::QRCode: return "QR_CODE";

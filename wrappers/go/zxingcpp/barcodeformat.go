@@ -53,5 +53,6 @@ const (
 	BarcodeFormatMicroQRCode    BarcodeFormat = 0x6D51
 	BarcodeFormatRMQRCode       BarcodeFormat = 0x7251
 	BarcodeFormatDataMatrix     BarcodeFormat = 0x2064
+	BarcodeFormatJABCode        BarcodeFormat = 0x204A
 	BarcodeFormatMaxiCode       BarcodeFormat = 0x2055
 )

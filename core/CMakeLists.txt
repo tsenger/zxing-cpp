@@ -8,6 +8,7 @@ option (ZXING_USE_BUNDLED_ZINT "Use the bundled libzint for barcode creation/wri
 foreach(format 1D AZTEC DATAMATRIX MAXICODE PDF417 QRCODE)
     option ("ZXING_ENABLE_${format}" "Enable support for ${format} barcodes" ON)
 endforeach()
+option (ZXING_ENABLE_JABCODE "Enable support for JABCode barcodes (reading only)" OFF)
 
 if (NOT DEFINED CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 20)
@@ -478,6 +479,13 @@ if (ZXING_WRITERS_OLD AND ZXING_ENABLE_QRCODE)
     )
 endif()
 
+if (ZXING_READERS AND ZXING_ENABLE_JABCODE)
+    set (JABCODE_FILES
+        src/jabcode/JABReader.h
+        src/jabcode/JABReader.cpp
+    )
+endif()
+
 source_group (Sources FILES ${COMMON_FILES})
 source_group (Sources\\aztec FILES ${AZTEC_FILES})
 source_group (Sources\\datamatrix FILES ${DATAMATRIX_FILES})
@@ -485,6 +493,7 @@ source_group (Sources\\maxicode FILES ${MAXICODE_FILES})
 source_group (Sources\\oned FILES ${ONED_FILES})
 source_group (Sources\\pdf417 FILES ${PDF417_FILES})
 source_group (Sources\\qrcode FILES ${QRCODE_FILES})
+source_group (Sources\\jabcode FILES ${JABCODE_FILES})
 
 # MARK: - Library target
 
@@ -500,6 +509,7 @@ add_library (ZXing
     ${ONED_FILES}
     ${PDF417_FILES}
     ${QRCODE_FILES}
+    ${JABCODE_FILES}
 )
 
 target_include_directories (ZXing
@@ -527,6 +537,33 @@ if (ZXING_READERS OR ZXING_WRITERS_OLD)
     )
     target_sources(ZXing PRIVATE ${LIBZUECI_FILES})
     source_group (Sources\\libzueci FILES ${LIBZUECI_FILES})
+endif()
+
+# MARK: - JABCODE
+
+if (ZXING_READERS AND ZXING_ENABLE_JABCODE)
+    set (LIBJABCODE_FILES
+        src/libjabcode/binarizer.c
+        src/libjabcode/decoder.c
+        src/libjabcode/detector.c
+        src/libjabcode/encoder.c
+        src/libjabcode/interleave.c
+        src/libjabcode/ldpc.c
+        src/libjabcode/mask.c
+        src/libjabcode/pseudo_random.c
+        src/libjabcode/sample.c
+        src/libjabcode/transform.c
+    )
+    set_source_files_properties(${LIBJABCODE_FILES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+    if (NOT MSVC)
+        set_source_files_properties(${LIBJABCODE_FILES} PROPERTIES COMPILE_OPTIONS "-Wno-all;-Wno-extra")
+    endif()
+    target_sources(ZXing PRIVATE ${LIBJABCODE_FILES})
+    source_group (Sources\\libjabcode FILES ${LIBJABCODE_FILES})
+    target_include_directories (ZXing PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libjabcode>")
+    if (NOT MSVC)
+        target_link_libraries(ZXing PRIVATE m)
+    endif()
 endif()
 
 # MARK: - ZINT

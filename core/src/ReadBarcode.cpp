@@ -17,6 +17,9 @@
 #include "MultiFormatReader.h"
 #include "Pattern.h"
 #include "ThresholdBinarizer.h"
+#if ZXING_ENABLE_JABCODE
+#include "jabcode/JABReader.h"
+#endif
 #endif
 
 #include <climits>
@@ -253,6 +256,17 @@ Barcodes ReadBarcodes(const ImageView& _iv, const ReaderOptions& opts)
 	if (!_iv.data() || _iv.width() * _iv.height() == 0)
 		throw std::invalid_argument("ImageView is null/empty");
 
+#if ZXING_ENABLE_JABCODE
+	// JABCode requires full color image data, so decode before grayscale conversion
+	Barcodes jabResults;
+	if (opts.hasAnyFormat(BarcodeFormat::JABCode) && _iv.format() != ImageFormat::Lum) {
+		int maxJab = opts.maxNumberOfSymbols() ? opts.maxNumberOfSymbols() : INT_MAX;
+		jabResults = ReadJABCodes(_iv, maxJab, opts);
+		for (auto& r : jabResults)
+			r.setReaderOptions(opts);
+	}
+#endif
+
 	LumImage lum;
 	ImageView iv = SetupLumImageView(_iv, lum, opts);
 	MultiFormatReader reader(opts);
@@ -314,6 +328,12 @@ Barcodes ReadBarcodes(const ImageView& _iv, const ReaderOptions& opts)
 
 		std::erase_if(res, [](auto&& r) { return r.format() == BarcodeFormat::None; });
 	}
+
+#if ZXING_ENABLE_JABCODE
+	for (auto& r : jabResults)
+		if (!Contains(res, r))
+			res.push_back(std::move(r));
+#endif
 
 	return res;
 }

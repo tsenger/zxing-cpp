@@ -3,6 +3,7 @@ project(ZXingCppAndroid)
 
 set(ZXING_READERS ON)
 set(ZXING_WRITERS OFF)
+set(ZXING_ENABLE_JABCODE ON)
 
 set(ZXING_EXPERIMENTAL_API ON CACHE BOOL "Enable ZXing experimental API (hardcoded for this wrapper)")
 

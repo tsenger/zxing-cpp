@@ -209,11 +209,12 @@ int main(int argc, char* argv[])
 #endif
 
 		auto ext = GetExtension(cli.outPath);
+		int channels = bitmap.pixStride();
 		int success = 0;
 		if (ext == "" || ext == "png") {
-			success = stbi_write_png(cli.outPath.c_str(), bitmap.width(), bitmap.height(), 1, bitmap.data(), 0);
+			success = stbi_write_png(cli.outPath.c_str(), bitmap.width(), bitmap.height(), channels, bitmap.data(), bitmap.width() * channels);
 		} else if (ext == "jpg" || ext == "jpeg") {
-			success = stbi_write_jpg(cli.outPath.c_str(), bitmap.width(), bitmap.height(), 1, bitmap.data(), 0);
+			success = stbi_write_jpg(cli.outPath.c_str(), bitmap.width(), bitmap.height(), channels, bitmap.data(), 0);
 		} else if (ext == "svg") {
 #ifndef USE_OLD_WRITER_API
 			success = (std::ofstream(cli.outPath) << WriteBarcodeToSVG(barcode, wOpts)).good();

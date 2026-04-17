@@ -7,6 +7,7 @@
 #include "WriteBarcode.h"
 
 #include "BarcodeData.h"
+#include "BarcodeFormat.h"
 #include "BitMatrix.h"
 #include "CreateBarcode.h"
 #include "Version.h"
@@ -147,6 +148,16 @@ std::string WriteBarcodeToSVG(const Barcode& barcode, [[maybe_unused]] const Wri
 
 Image WriteBarcodeToImage(const Barcode& barcode, [[maybe_unused]] const WriterOptions& options)
 {
+#if ZXING_ENABLE_JABCODE
+	if (barcode.format() == BarcodeFormat::JABCode && barcode.d->colorBitmap.data()) {
+		const auto& src = barcode.d->colorBitmap;
+		auto img = Image(src.width(), src.height(), ImageFormat::RGBA);
+		std::memcpy(const_cast<uint8_t*>(img.data()), src.data(),
+		            static_cast<size_t>(src.width()) * src.height() * PixStride(ImageFormat::RGBA));
+		return img;
+	}
+#endif
+
 #if defined(ZXING_WRITERS) && defined(ZXING_USE_ZINT)
 	auto* zint = barcode.d->zint.get();
 

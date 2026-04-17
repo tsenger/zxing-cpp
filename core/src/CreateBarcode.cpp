@@ -18,6 +18,10 @@
 #include "ReadBarcode.h"
 #endif
 
+#if ZXING_ENABLE_JABCODE
+#include "jabcode/JABWriter.h"
+#endif
+
 #ifdef ZXING_USE_ZINT
 #include "ECI.h"
 #include "TextEncoder.h"
@@ -315,6 +319,11 @@ Barcode CreateBarcode(const void* data, int size, int mode, const CreatorOptions
 	if (!data || size < 1)
 		throw std::invalid_argument("Can not create a barcode from NULL or empty data");
 
+#if ZXING_ENABLE_JABCODE
+	if (opts.format() == BarcodeFormat::JABCode)
+		return CreateJABCode(data, size, opts);
+#endif
+
 	auto zint = opts.zint();
 
 	zint->input_mode = mode == UNICODE_MODE && opts.gs1() && (opts.format() & BarcodeFormat::AllGS1) ? GS1_MODE : mode;
@@ -431,6 +440,11 @@ static Barcode CreateBarcode(BitMatrix&& bits, std::string_view contents, const 
 
 Barcode CreateBarcodeFromText(std::string_view contents, const CreatorOptions& opts)
 {
+#if ZXING_ENABLE_JABCODE
+	if (opts.format() == BarcodeFormat::JABCode)
+		return CreateJABCode(contents.data(), contents.size(), opts);
+#endif
+
 	auto writer = MultiFormatWriter(opts.format()).setMargin(0);
 	if (auto ecLevel = opts.ecLevel(); ecLevel && ecLevel->size() == 1 && strchr("012345678", (*ecLevel)[0]))
 		writer.setEccLevel(std::stoi(*ecLevel));
@@ -447,6 +461,11 @@ Barcode CreateBarcodeFromText(std::u8string_view contents, const CreatorOptions&
 
 Barcode CreateBarcodeFromBytes(const void* data, int size, const CreatorOptions& opts)
 {
+#if ZXING_ENABLE_JABCODE
+	if (opts.format() == BarcodeFormat::JABCode)
+		return CreateJABCode(data, size, opts);
+#endif
+
 	std::wstring bytes;
 	for (uint8_t c : ByteView(data, size))
 		bytes.push_back(c);
@@ -465,18 +484,28 @@ Barcode CreateBarcodeFromBytes(const void* data, int size, const CreatorOptions&
 
 zint_symbol* CreatorOptions::zint() const { return nullptr; }
 
-Barcode CreateBarcodeFromText(std::string_view, const CreatorOptions&)
+Barcode CreateBarcodeFromText(std::string_view contents, const CreatorOptions& opts)
 {
+#if ZXING_ENABLE_JABCODE
+	if (opts.format() == BarcodeFormat::JABCode)
+		return CreateJABCode(contents.data(), contents.size(), opts);
+#endif
+	(void)contents; (void)opts;
 	throw std::runtime_error("This build of zxing-cpp does not support creating barcodes.");
 }
 
-Barcode CreateBarcodeFromText(std::u8string_view, const CreatorOptions&)
+Barcode CreateBarcodeFromText(std::u8string_view contents, const CreatorOptions& opts)
 {
-	throw std::runtime_error("This build of zxing-cpp does not support creating barcodes.");
+	return CreateBarcodeFromText({reinterpret_cast<const char*>(contents.data()), contents.size()}, opts);
 }
 
-Barcode CreateBarcodeFromBytes(const void*, int, const CreatorOptions&)
+Barcode CreateBarcodeFromBytes(const void* data, int size, const CreatorOptions& opts)
 {
+#if ZXING_ENABLE_JABCODE
+	if (opts.format() == BarcodeFormat::JABCode)
+		return CreateJABCode(data, size, opts);
+#endif
+	(void)data; (void)size; (void)opts;
 	throw std::runtime_error("This build of zxing-cpp does not support creating barcodes.");
 }
 

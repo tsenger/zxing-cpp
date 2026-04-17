@@ -8,7 +8,7 @@ option (ZXING_USE_BUNDLED_ZINT "Use the bundled libzint for barcode creation/wri
 foreach(format 1D AZTEC DATAMATRIX MAXICODE PDF417 QRCODE)
     option ("ZXING_ENABLE_${format}" "Enable support for ${format} barcodes" ON)
 endforeach()
-option (ZXING_ENABLE_JABCODE "Enable support for JABCode barcodes (reading only)" OFF)
+option (ZXING_ENABLE_JABCODE "Enable support for JABCode barcodes" OFF)
 
 if (NOT DEFINED CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 20)
@@ -485,6 +485,12 @@ if (ZXING_READERS AND ZXING_ENABLE_JABCODE)
         src/jabcode/JABReader.cpp
     )
 endif()
+if (ZXING_ENABLE_JABCODE)
+    set (JABCODE_FILES ${JABCODE_FILES}
+        src/jabcode/JABWriter.h
+        src/jabcode/JABWriter.cpp
+    )
+endif()
 
 source_group (Sources FILES ${COMMON_FILES})
 source_group (Sources\\aztec FILES ${AZTEC_FILES})
@@ -541,7 +547,7 @@ endif()
 
 # MARK: - JABCODE
 
-if (ZXING_READERS AND ZXING_ENABLE_JABCODE)
+if ((ZXING_READERS OR ZXING_WRITERS) AND ZXING_ENABLE_JABCODE)
     set (LIBJABCODE_FILES
         src/libjabcode/binarizer.c
         src/libjabcode/decoder.c

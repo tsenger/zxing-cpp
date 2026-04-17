@@ -45,6 +45,9 @@ struct BarcodeData
 	StructuredAppendInfo sai = {};
 	ReaderOptions readerOpts = {};
 	BitMatrix symbol = {};
+#if ZXING_ENABLE_JABCODE
+	Image colorBitmap = {}; // RGBA color bitmap for JABCode output
+#endif
 #ifdef ZXING_USE_ZINT
 	unique_zint_symbol zint = {};
 	mutable std::unique_ptr<std::mutex> zintMutex = std::make_unique<std::mutex>();

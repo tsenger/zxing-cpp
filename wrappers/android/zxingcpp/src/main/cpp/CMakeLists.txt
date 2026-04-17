@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(ZXingCppAndroid)
 
 set(ZXING_READERS ON)
-set(ZXING_WRITERS OFF)
+set(ZXING_WRITERS NEW)
 set(ZXING_ENABLE_JABCODE ON)
 
 set(ZXING_EXPERIMENTAL_API ON CACHE BOOL "Enable ZXing experimental API (hardcoded for this wrapper)")

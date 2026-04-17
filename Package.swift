@@ -17,7 +17,13 @@ let package = Package(
             path: "core/src",
             exclude: ["libzint", "ZXingC.cpp", "ZXingCpp.cpp"],
             publicHeadersPath: ".",
+            cSettings: [
+                .headerSearchPath("libjabcode"),
+                .headerSearchPath("../../wrappers/ios/Sources/Wrapper"),
+                .define("ZXING_INTERNAL")
+            ],
             cxxSettings: [
+                .headerSearchPath("libjabcode"),
                 .headerSearchPath("../../wrappers/ios/Sources/Wrapper"),
                 .define("ZXING_INTERNAL")
             ]

@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   ]
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
-    'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/wrappers/ios/Sources/Wrapper'
+    'HEADER_SEARCH_PATHS' => '$(PODS_TARGET_SRCROOT)/wrappers/ios/Sources/Wrapper $(PODS_TARGET_SRCROOT)/core/src/libjabcode'
   }
 
   s.default_subspec = 'Wrapper'

@@ -40,7 +40,7 @@ It was originally ported from the Java [ZXing library](https://github.com/zxing/
 | ***Other:*** | *(Legacy, Niche)*
 | Codabar |
 | DXFilmEdge |
-| JABCode | ᴿᴸ *(ISO/IEC 23634, optional, requires `ZXING_ENABLE_JABCODE=ON`)*
+| JABCode | ᴸ *(ISO/IEC 23634, optional, requires `ZXING_ENABLE_JABCODE=ON`)*
 
 
 [Note:]

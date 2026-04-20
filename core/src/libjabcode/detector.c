@@ -48,7 +48,7 @@ jab_boolean checkPatternCross(jab_int32* state_count, jab_float* module_size)
 					 fabs(layer_size - (jab_float)state_count[3]) < layer_tolerance &&
 					 (jab_float)state_count[0] > 0.5 * layer_tolerance && //the two outside layers can be larger than layer_size
 					 (jab_float)state_count[4] > 0.5 * layer_tolerance &&
-					 fabs(state_count[1] - state_count[3]) < layer_tolerance; //layer 1 and layer 3 shall be of the same size
+					 (jab_float)abs(state_count[1] - state_count[3]) < layer_tolerance; //layer 1 and layer 3 shall be of the same size
 
     return size_condition;
 }
@@ -1346,14 +1346,15 @@ void seekMissingFinderPattern(jab_bitmap* bitmap, jab_finder_pattern* fps, jab_i
 	jab_int32 area_width = end_x - start_x;
 	jab_int32 area_height= end_y - start_y;
 
-	jab_bitmap* rgb[3];
+	jab_bitmap* rgb[3] = {NULL, NULL, NULL};
+	jab_finder_pattern* fps_miss = NULL;
 	for(jab_int32 i=0; i<3; i++)
 	{
 		rgb[i] = (jab_bitmap*)calloc(1, sizeof(jab_bitmap) + area_height*area_width*sizeof(jab_byte));
 		if(rgb[i] == NULL)
 		{
 			JAB_REPORT_INFO(("Memory allocation for binary bitmap failed, the missing finder pattern can not be found."))
-			return;
+			goto cleanup;
 		}
 		rgb[i]->width = area_width;
 		rgb[i]->height= area_height;
@@ -1431,11 +1432,11 @@ void seekMissingFinderPattern(jab_bitmap* bitmap, jab_finder_pattern* fps, jab_i
 		break;
 	}
 	//search for the missing finder pattern
-	jab_finder_pattern* fps_miss = (jab_finder_pattern*)calloc(MAX_FINDER_PATTERNS, sizeof(jab_finder_pattern));
+	fps_miss = (jab_finder_pattern*)calloc(MAX_FINDER_PATTERNS, sizeof(jab_finder_pattern));
     if(fps_miss == NULL)
     {
         reportError("Memory allocation for finder patterns failed, the missing finder pattern can not be found.");
-        return;
+        goto cleanup;
     }
     jab_int32 total_finder_patterns = 0;
     jab_boolean done = 0;
@@ -1559,6 +1560,10 @@ void seekMissingFinderPattern(jab_bitmap* bitmap, jab_finder_pattern* fps, jab_i
         fps[miss_fp_index].center.x += start_x;
         fps[miss_fp_index].center.y += start_y;
     }
+
+cleanup:
+	free(fps_miss);
+	for(jab_int32 i=0; i<3; i++) free(rgb[i]);
 }
 
 /**
@@ -3136,6 +3141,7 @@ jab_bitmap* sampleSymbolByAlignmentPattern(jab_bitmap* bitmap, jab_bitmap* ch[],
 	if(matrix == NULL)
 	{
 		reportError("Memory allocation for symbol bitmap matrix failed");
+		free(aps);
 		return NULL;
 	}
 	matrix->channel_count = bitmap->channel_count;

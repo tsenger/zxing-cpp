@@ -15,6 +15,21 @@ Minor portability fixes were applied to `jabcode.h`:
 - `MAX`/`MIN` macros replaced with standard C-compatible versions (the originals used GCC statement expressions)
 - `JAB_REPORT_ERROR`/`JAB_REPORT_INFO` macros set to no-ops (the originals used `printf`)
 
+Memory-leak fixes were applied to `detector.c` and `sample.c`:
+- `seekMissingFinderPattern` leaked the `rgb[]` binary bitmaps and `fps_miss` buffer on every
+  invocation; allocation-failure paths also leaked previously allocated siblings. Rewritten with a
+  single cleanup tail.
+- `sampleSymbolByAlignmentPattern` leaked `aps` when the output matrix allocation failed.
+- `sampleSymbol` / `sampleCrossArea` leaked `matrix` when a mapped coordinate fell outside the
+  bitmap bounds.
+
+A type fix was applied to `checkPatternCross` in `detector.c`: `fabs()` on an integer difference
+was replaced with `abs()` (the original relied on implicit int-to-double promotion).
+
+These bugs were originally reported by Michael Schuster against upstream libjabcode
+(https://github.com/misch7/jabcode/tree/fix-memory-leaks); the fixes here are independent
+implementations of the same corrections.
+
 ## License
 
 The files in this directory are licensed under the **MIT License**, Copyright (c) 2026 Fraunhofer SIT.

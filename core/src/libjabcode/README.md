@@ -17,13 +17,8 @@ Minor portability fixes were applied to `jabcode.h`:
 
 ## License
 
-The files in this directory are licensed under the **GNU Lesser General Public License v3.0** (LGPLv3)
-with a static linking exception. See the [LICENSE](LICENSE) file in this directory for the full text.
+The files in this directory are licensed under the **MIT License**, Copyright (c) 2026 Fraunhofer SIT.
+See the [LICENSE](LICENSE) file in this directory for the full text.
 
-This is a separate license from the rest of ZXing-C++, which is licensed under Apache 2.0. The libjabcode
-code is contained entirely within this directory and is only compiled into the library when the CMake option
-`ZXING_ENABLE_JABCODE=ON` is set (default: OFF). No libjabcode code has been copied into Apache 2.0 licensed
-files; the integration layer (`core/src/jabcode/JABReader.cpp`) is original ZXing code under Apache 2.0 that
-calls the public libjabcode API.
-
-Users who build with `ZXING_ENABLE_JABCODE=OFF` (the default) are not affected by LGPLv3 in any way.
+Upstream re-licensed from LGPLv3 (with a static linking exception) to MIT in commit `3b56eef`
+(2026-04-17). MIT is compatible with ZXing-C++'s Apache 2.0 license.

@@ -40,16 +40,15 @@ It was originally ported from the Java [ZXing library](https://github.com/zxing/
 | ***Other:*** | *(Legacy, Niche)*
 | Codabar |
 | DXFilmEdge |
-| JABCode | ᴸ *(ISO/IEC 23634, optional, requires `ZXING_ENABLE_JABCODE=ON`)*
+| JABCode | *(ISO/IEC 23634, optional, requires `ZXING_ENABLE_JABCODE=ON`)*
 
 
 [Note:]
  * ᵂ : write support only
  * ᴿ : read support only
- * ᴸ : licensed under LGPLv3 (see below)
  * DataBar used to be called RSS.
  * DataBar, DX Film Edge, MaxiCode, Micro QR Code and rMQR Code are not supported for writing if the library is configured with `ZXING_WRITERS=OLD`.
- * JABCode support is optional and disabled by default. When enabled, it statically links [libjabcode](https://github.com/jabcode/jabcode) which is licensed under LGPLv3 (with a static linking exception). The rest of ZXing-C++ remains Apache 2.0. See [`core/src/libjabcode/README.md`](core/src/libjabcode/README.md) for details. Writing currently supports single square symbols only (no rectangular or multi-symbol/cascaded codes).
+ * JABCode support is optional and disabled by default. When enabled, it statically links [libjabcode](https://github.com/jabcode/jabcode) (MIT-licensed, © Fraunhofer SIT). See [`core/src/libjabcode/README.md`](core/src/libjabcode/README.md) for details. Writing currently supports single square symbols only (no rectangular or multi-symbol/cascaded codes).
 
 ## Sponsors
 

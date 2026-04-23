@@ -35,7 +35,7 @@ static JabBitmapPtr ToJabBitmap(const ImageView& iv)
 	// JABCode finder patterns remain detectable at reduced resolution, and this avoids running
 	// the expensive binarizer + pattern scan on megapixel false-positive images.
 	int scale = 1;
-	while (std::max(srcW, srcH) / scale > 400)
+	while (std::max(srcW, srcH) / scale > 512)
 		scale *= 2;
 
 	int width  = srcW / scale;

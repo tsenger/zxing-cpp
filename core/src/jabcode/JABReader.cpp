@@ -28,10 +28,21 @@ using JabBitmapPtr = std::unique_ptr<jab_bitmap, JabBitmapDeleter>;
 
 static JabBitmapPtr ToJabBitmap(const ImageView& iv)
 {
-	int width = iv.width();
-	int height = iv.height();
-	std::size_t pixelBytes = static_cast<std::size_t>(width) * height * 4;
+	int srcW = iv.width();
+	int srcH = iv.height();
 
+	// Downsample large images by successive halving until the longer side fits within 400px.
+	// JABCode finder patterns remain detectable at reduced resolution, and this avoids running
+	// the expensive binarizer + pattern scan on megapixel false-positive images.
+	int scale = 1;
+	while (std::max(srcW, srcH) / scale > 400)
+		scale *= 2;
+
+	int width  = srcW / scale;
+	int height = srcH / scale;
+	int scale2 = scale * scale;
+
+	std::size_t pixelBytes = static_cast<std::size_t>(width) * height * 4;
 	auto* bmp = static_cast<jab_bitmap*>(std::calloc(1, sizeof(jab_bitmap) + pixelBytes));
 	if (!bmp)
 		return {nullptr, {}};
@@ -43,12 +54,15 @@ static JabBitmapPtr ToJabBitmap(const ImageView& iv)
 	bmp->channel_count = BITMAP_CHANNEL_COUNT;
 
 	if (iv.format() == ImageFormat::Lum) {
-		// Grayscale: replicate into RGB, alpha = 255
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				const uint8_t* src = iv.data(x, y);
+				int sum = 0;
+				for (int dy = 0; dy < scale; ++dy)
+					for (int dx = 0; dx < scale; ++dx)
+						sum += iv.data(x * scale + dx, y * scale + dy)[0];
+				uint8_t v = static_cast<uint8_t>(sum / scale2);
 				uint8_t* dst = bmp->pixel + (y * width + x) * 4;
-				dst[0] = dst[1] = dst[2] = src[0];
+				dst[0] = dst[1] = dst[2] = v;
 				dst[3] = 255;
 			}
 		}
@@ -56,16 +70,22 @@ static JabBitmapPtr ToJabBitmap(const ImageView& iv)
 		int ri = RedIndex(iv.format());
 		int gi = GreenIndex(iv.format());
 		int bi = BlueIndex(iv.format());
-		bool hasAlpha = PixStride(iv.format()) >= 4;
-
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				const uint8_t* src = iv.data(x, y);
+				int r = 0, g = 0, b = 0;
+				for (int dy = 0; dy < scale; ++dy) {
+					for (int dx = 0; dx < scale; ++dx) {
+						const uint8_t* src = iv.data(x * scale + dx, y * scale + dy);
+						r += src[ri];
+						g += src[gi];
+						b += src[bi];
+					}
+				}
 				uint8_t* dst = bmp->pixel + (y * width + x) * 4;
-				dst[0] = src[ri];
-				dst[1] = src[gi];
-				dst[2] = src[bi];
-				dst[3] = hasAlpha ? 255 : 255; // JABCode ignores alpha, always opaque
+				dst[0] = static_cast<uint8_t>(r / scale2);
+				dst[1] = static_cast<uint8_t>(g / scale2);
+				dst[2] = static_cast<uint8_t>(b / scale2);
+				dst[3] = 255;
 			}
 		}
 	}

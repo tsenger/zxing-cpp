@@ -136,6 +136,34 @@ Barcodes ReadJABCodes(const ImageView& image, int maxSymbols, [[maybe_unused]] c
 
 	jab_data* data = decodeJABCodeEx(bmp.get(), NORMAL_DECODE, &status, symbols, MAX_SYMBOL_NUMBER);
 
+	// status==1 means finder patterns were located but LDPC/decode failed.
+	// The libjabcode scanner is primarily horizontal; retrying with the bitmap
+	// rotated 90° gives the horizontal scan a different orientation to work with.
+	// status==0 (nothing found at all) is not retried to avoid doubling the cost
+	// of false-positive images that produce no candidates.
+	if (!data && status == 1) {
+		int W = bmp->width, H = bmp->height;
+		std::size_t rotBytes = static_cast<std::size_t>(H) * W * 4;
+		auto* rbmp = static_cast<jab_bitmap*>(std::calloc(1, sizeof(jab_bitmap) + rotBytes));
+		if (rbmp) {
+			rbmp->width = H;  rbmp->height = W;
+			rbmp->bits_per_pixel = BITMAP_BITS_PER_PIXEL;
+			rbmp->bits_per_channel = BITMAP_BITS_PER_CHANNEL;
+			rbmp->channel_count = BITMAP_CHANNEL_COUNT;
+			// 90° clockwise: dest(x, y) = src(H-1-y, x)
+			for (int y = 0; y < W; ++y)
+				for (int x = 0; x < H; ++x) {
+					const uint8_t* s = bmp->pixel + ((H - 1 - x) * W + y) * 4;
+					uint8_t*       d = rbmp->pixel + (y * H + x) * 4;
+					d[0]=s[0]; d[1]=s[1]; d[2]=s[2]; d[3]=s[3];
+				}
+			status = 0;
+			std::memset(symbols, 0, sizeof(symbols));
+			data = decodeJABCodeEx(rbmp, NORMAL_DECODE, &status, symbols, MAX_SYMBOL_NUMBER);
+			std::free(rbmp);
+		}
+	}
+
 	if (!data || status < 2) {
 		std::free(data);
 		return results;

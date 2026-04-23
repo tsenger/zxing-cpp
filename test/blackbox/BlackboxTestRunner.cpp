@@ -699,6 +699,15 @@ int runBlackBoxTests(const fs::path& testPathPrefix, const std::set<std::string>
 			{ 3, 3, 0   },
 		});
 
+#if ZXING_ENABLE_JABCODE
+		runTests("jabcode", JABCode, 3, {
+			{ 3, 3, 0   },
+			{ 3, 3, 90  },
+			{ 3, 3, 180 },
+			{ 3, 3, 270 },
+		});
+#endif
+
 		runTests("falsepositives-1", None, 27, {
 			{ 0, 0, 0, 0, 0   },
 			{ 0, 0, 0, 0, 90  },

@@ -1,6 +1,6 @@
 #include "pseudo_random.h"
 
-static uint64_t lcg64_seed = 42;
+static _Thread_local uint64_t lcg64_seed = 42;
 
 uint32_t temper(uint32_t x)
 {

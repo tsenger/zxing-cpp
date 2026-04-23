@@ -36,14 +36,6 @@ public:
 
 		auto ImageFormatFromChannels = std::array{ImageFormat::None, ImageFormat::Lum, ImageFormat::LumA, ImageFormat::RGB, ImageFormat::RGBA};
 		ImageView::operator=({_memory.get(), width, height, ImageFormatFromChannels.at(channels)});
-
-		// preconvert from RGB -> Lum to do this only once instead of for each rotation
-		if (_format == ImageFormat::RGB) {
-			auto* img = _memory.get();
-			for (int i = 0; i < width * height; ++i)
-				img[i] = RGBToLum(img[3 * i + 0], img[3 * i + 1], img[3 * i + 2]);
-			ImageView::operator=({_memory.get(), width, height, ImageFormat::Lum});
-		}
 	}
 
 	operator bool() const { return _data; }

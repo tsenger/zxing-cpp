@@ -93,11 +93,37 @@ static JabBitmapPtr ToJabBitmap(const ImageView& iv)
 	return JabBitmapPtr(bmp);
 }
 
+static bool hasColorContent(const ImageView& iv)
+{
+	// JABCode finder patterns are strongly saturated (pure R/G/B/Y/C/M).
+	// Sample a sparse grid; if no pixel has max(R,G,B)-min(R,G,B) above the
+	// threshold, there can be no finder patterns and decoding can be skipped.
+	constexpr int kThreshold = 32;
+	constexpr int kSteps = 8;
+	int stepX = std::max(1, iv.width()  / kSteps);
+	int stepY = std::max(1, iv.height() / kSteps);
+	int ri = RedIndex(iv.format());
+	int gi = GreenIndex(iv.format());
+	int bi = BlueIndex(iv.format());
+	for (int y = 0; y < iv.height(); y += stepY)
+		for (int x = 0; x < iv.width(); x += stepX) {
+			const uint8_t* p = iv.data(x, y);
+			int lo = std::min({(int)p[ri], (int)p[gi], (int)p[bi]});
+			int hi = std::max({(int)p[ri], (int)p[gi], (int)p[bi]});
+			if (hi - lo > kThreshold)
+				return true;
+		}
+	return false;
+}
+
 Barcodes ReadJABCodes(const ImageView& image, int maxSymbols, [[maybe_unused]] const ReaderOptions& opts)
 {
 	Barcodes results;
 
 	if (maxSymbols <= 0)
+		return results;
+
+	if (!hasColorContent(image))
 		return results;
 
 	auto bmp = ToJabBitmap(image);
